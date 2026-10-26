@@ -1,15 +1,26 @@
 import type { NextConfig } from "next";
 
+// Sirv CDN domain — must be set in Vercel env vars as NEXT_PUBLIC_SIRV_DOMAIN
+// Falls back to a wildcard pattern so builds don't fail when the variable is absent
+const sirvDomain = process.env.NEXT_PUBLIC_SIRV_DOMAIN;
+
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        // Product images are served from the Sirv account configured in .env
-        hostname: process.env.NEXT_PUBLIC_SIRV_DOMAIN as string ,
-        pathname: "/**",
-      },
-    ],
+    remotePatterns: sirvDomain
+      ? [
+          {
+            protocol: "https" as const,
+            hostname: sirvDomain,
+            pathname: "/**",
+          },
+        ]
+      : [
+          {
+            protocol: "https" as const,
+            hostname: "**.sirv.com",
+            pathname: "/**",
+          },
+        ],
   },
   async headers() {
     return [
